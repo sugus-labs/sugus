@@ -35,14 +35,15 @@ class NameList(generics.ListAPIView):
         """
 #        name = self.request.query_params.get('name', False)
         name = self.kwargs['name']
-
-
-
 #        print(name)
 #        print(self.request.query_params)
-        queryset = Name.objects.filter(text=name)
+        queryset = Name.objects.filter(text = name)
         if not queryset:
             # MAKE THE MODEL HERE
+
+            
+
+
             pass
 #        N = Name(
 #            text,
