@@ -18,7 +18,6 @@ from sklearn.model_selection import train_test_split # Import train_test_split f
 from sklearn import metrics 
 
 def index(request):
-#    r = random.randint(0, 10)
     names_with_a = Name.objects.order_by('text')[:5]
     output = ', '.join([n.text for n in names_with_a])
     return HttpResponse("""
@@ -26,29 +25,19 @@ def index(request):
         <b> {0} </b>       
        """.format(output))
 
-#def xxxx(request):
-#    return HttpResponse("Bye BRIDGERS!")
-
 class NameList(generics.ListAPIView):
-#    queryset = Name.objects.all()
     serializer_class = NameSerializer
-#    lookup_field = 'text'
-#    permission_classes = [permissions.IsAuthenticated] 
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
         by filtering against a `username` query parameter in the URL.
         """
-#        name = self.request.query_params.get('name', False)
         name = self.kwargs['name'].upper()
-#        print(name)
-#        print(self.request.query_params)
         queryset = Name.objects.filter(text = name)
         if not queryset:
             # MAKE THE MODEL HERE
             name_basics_df = pd.read_csv(
                 "/home/gustavo_martin/sugus/data/names_master.csv", sep = ",")
-            #print(name_basics_df.head())
             name_basics_w_df = name_basics_df
             name_basics_w_df = name_basics_w_df.reset_index()
             name_basics_w_df["lword"] = name_basics_w_df["name"].str[-1:]
@@ -82,12 +71,10 @@ class NameList(generics.ListAPIView):
                 columns = ["prob_f", "prob_m"], 
                 axis = 1
             )
-            #print(name_basics_w_df.head)
             enc = OneHotEncoder(
                 categories = 'auto',  # Categories per feature
                 drop = None, # Whether to drop one of the features
                 sparse = True, # Will return sparse matrix if set True
-            #    dtype = <class 'numpy.float64'>, # Desired data type of the output
                 handle_unknown = 'error' # Whether to raise an error 
             )      
             lword_tr = enc.fit_transform(name_basics_w_df[['lword']])
@@ -101,12 +88,9 @@ class NameList(generics.ListAPIView):
             X = name_basics_w_df.drop(columns = ["gender"])
             y = name_basics_w_df[["gender"]]
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size = 0.2, random_state = 42) # 80% training and 20% test
-            #clf = DecisionTreeClassifier(max_depth = 4)
+                X, y, test_size = 0.2, random_state = 42)
             clf = DecisionTreeClassifier(random_state = 42)
-            # Train Decision Tree Classifer
             clf = clf.fit(X_train,y_train)
-            #Predict the response for test dataset
             y_pred = clf.predict(X_test)
 
             def predict_name(name):
